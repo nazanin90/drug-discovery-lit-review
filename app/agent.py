@@ -21,7 +21,10 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.adk.tools import google_search
 from google.adk.tools.mcp_tool import McpToolset
-from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+from google.adk.tools.mcp_tool.mcp_session_manager import (
+    StdioConnectionParams,
+    StreamableHTTPConnectionParams,
+)
 from google.genai import types
 from mcp import StdioServerParameters
 
@@ -76,15 +79,24 @@ PubMed results are insufficient.
   study types, or specific MeSH qualifiers rather than trying to process everything.
 """
 
-# PubMed MCP server via stdio — provides search, fetch, and MeSH tools
-pubmed_mcp = McpToolset(
-    connection_params=StdioConnectionParams(
-        server_params=StdioServerParameters(
-            command="npx",
-            args=["-y", "@cyanheads/pubmed-mcp-server"],
+# PubMed MCP server — provides search, fetch, and MeSH tools
+# Local dev: launches via stdio (npx)
+# Agent Engine: connects to remote Cloud Run service via Streamable HTTP
+PUBMED_MCP_URL = os.environ.get("PUBMED_MCP_URL")
+
+if PUBMED_MCP_URL:
+    pubmed_mcp = McpToolset(
+        connection_params=StreamableHTTPConnectionParams(url=PUBMED_MCP_URL),
+    )
+else:
+    pubmed_mcp = McpToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command="npx",
+                args=["-y", "@cyanheads/pubmed-mcp-server"],
+            ),
         ),
-    ),
-)
+    )
 
 root_agent = Agent(
     name="drug_discovery_lit_review",
