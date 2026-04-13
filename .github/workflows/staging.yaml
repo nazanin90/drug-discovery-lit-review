@@ -17,10 +17,9 @@ name: Deploy to Staging
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'app/**'
-      - 'data_ingestion/**'
       - 'tests/**'
       - 'deployment/**'
       - 'uv.lock'
@@ -66,7 +65,7 @@ jobs:
             --entrypoint-object=agent_engine \
             --requirements-file=app/app_utils/.requirements.txt \
             --service-account=${{ vars.APP_SERVICE_ACCOUNT_STAGING }} \
-            --set-env-vars="COMMIT_SHA=${{ github.sha }},LOGS_BUCKET_NAME=${{ vars.LOGS_BUCKET_NAME_STAGING }}"
+            --set-env-vars="COMMIT_SHA=${{ github.sha }},LOGS_BUCKET_NAME=${{ vars.LOGS_BUCKET_NAME_STAGING }},PUBMED_MCP_URL=${{ vars.PUBMED_MCP_URL }}"
 
       - name: Fetch Auth Token
         id: fetch-token

@@ -17,10 +17,9 @@ name: PR Checks
 on:
   pull_request:
     branches:
-      - main
+      - master
     paths:
       - 'app/**'
-      - 'data_ingestion/**'
       - 'tests/**'
       - 'deployment/**'
       - 'uv.lock'
