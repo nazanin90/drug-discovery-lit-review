@@ -85,10 +85,22 @@ PubMed results are insufficient.
 PUBMED_MCP_URL = os.environ.get("PUBMED_MCP_URL")
 
 if PUBMED_MCP_URL:
+    # Running on Agent Engine — connect to Cloud Run MCP server with auth
+    import google.auth.transport.requests
+    _credentials, _ = google.auth.default()
+    _auth_req = google.auth.transport.requests.Request()
+    _credentials.refresh(_auth_req)
+    _headers = {"Authorization": f"Bearer {_credentials.token}"}
+
     pubmed_mcp = McpToolset(
-        connection_params=StreamableHTTPConnectionParams(url=PUBMED_MCP_URL),
+        connection_params=StreamableHTTPConnectionParams(
+            url=PUBMED_MCP_URL,
+            headers=_headers,
+            timeout=30.0,
+        ),
     )
 else:
+    # Local dev — spawn MCP server as subprocess
     pubmed_mcp = McpToolset(
         connection_params=StdioConnectionParams(
             server_params=StdioServerParameters(

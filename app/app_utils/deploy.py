@@ -180,7 +180,7 @@ def setup_agent_identity(client: Any, project: str, display_name: str) -> Any:
 )
 @click.option(
     "--description",
-    default="Simple ReAct agent",
+    default="Scans biomedical literature to identify drug-target interactions and side-effect correlations",
     help="Description of the agent",
 )
 @click.option(
