@@ -204,3 +204,6 @@ tools/a2a-inspector/
 # ADK runtime artifacts
 .adk/
 **/.adk/
+
+# Deployment metadata (contains project-specific IDs)
+deployment_metadata.json

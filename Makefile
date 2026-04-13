@@ -28,7 +28,7 @@ playground:
 # ==============================================================================
 
 # Deploy the agent remotely
-# Usage: make deploy [AGENT_IDENTITY=true] [SECRETS="KEY=SECRET_ID,..."] - Set AGENT_IDENTITY=true to enable per-agent IAM identity (Preview)
+# Usage: make deploy [PUBMED_MCP_URL=https://...] [AGENT_IDENTITY=true] [SECRETS="KEY=SECRET_ID,..."]
 deploy:
 	# Export dependencies to requirements file using uv export.
 	(uv export --no-hashes --no-header --no-dev --no-emit-project --no-annotate > app/app_utils/.requirements.txt 2>/dev/null || \
@@ -38,6 +38,8 @@ deploy:
 		--entrypoint-module=app.agent_engine_app \
 		--entrypoint-object=agent_engine \
 		--requirements-file=app/app_utils/.requirements.txt \
+		--location=us-central1 \
+		$(if $(PUBMED_MCP_URL),--set-env-vars="PUBMED_MCP_URL=$(PUBMED_MCP_URL)") \
 		$(if $(AGENT_IDENTITY),--agent-identity) \
 		$(if $(filter command line,$(origin SECRETS)),--set-secrets="$(SECRETS)")
 

@@ -62,7 +62,9 @@ drug-discovery-lit-review/
 │   ├── agent_engine_app.py    # Agent Engine deployment wrapper
 │   └── app_utils/             # Deployment and telemetry helpers
 ├── .github/workflows/         # CI/CD pipelines (GitHub Actions)
-├── deployment/terraform/      # Infrastructure as code
+├── deployment/
+│   ├── mcp-server/            # PubMed MCP server Dockerfile (Cloud Run)
+│   └── terraform/             # Infrastructure as code
 ├── notebooks/                 # Prototyping and evaluation notebooks
 ├── tests/
 │   ├── eval/                  # Evaluation config and datasets
@@ -88,13 +90,58 @@ drug-discovery-lit-review/
 
 ## Deployment
 
+The agent deploys to [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/docs/agent-engine/overview). Since Agent Engine doesn't support local MCP servers (stdio), the PubMed MCP server runs separately on Cloud Run.
+
+### Architecture
+
+```
+User → Agent Engine (ADK agent) → Cloud Run (PubMed MCP server) → NCBI PubMed API
+```
+
+### Step 1: Deploy the PubMed MCP server to Cloud Run
+
+```bash
+cd deployment/mcp-server
+
+gcloud run deploy pubmed-mcp-server \
+  --source=. \
+  --region=us-central1 \
+  --port=8080 \
+  --set-env-vars="MCP_TRANSPORT_TYPE=http,MCP_HTTP_PORT=8080,MCP_HTTP_HOST=0.0.0.0,MCP_LOG_LEVEL=info"
+```
+
+Optionally pass `NCBI_API_KEY` for higher rate limits (10 req/s vs 3 req/s):
+```bash
+--set-env-vars="...,NCBI_API_KEY=your_key_here"
+```
+
+### Step 2: Grant Agent Engine access to the MCP server
+
+```bash
+# Get your project number
+PROJECT_NUMBER=$(gcloud projects describe $(gcloud config get-value project) --format="value(projectNumber)")
+
+# Grant the Agent Engine service account access
+gcloud run services add-iam-policy-binding pubmed-mcp-server \
+  --region=us-central1 \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-aiplatform-re.iam.gserviceaccount.com" \
+  --role=roles/run.invoker
+```
+
+### Step 3: Deploy the agent to Agent Engine
+
+```bash
+# Set your MCP server URL (from Step 1 output)
+make deploy PUBMED_MCP_URL=https://<your-cloud-run-url>/mcp
+```
+
+Or deploy manually:
 ```bash
 gcloud config set project <your-project-id>
 make deploy
 ```
 
-To set up production infrastructure with CI/CD, run `uvx agent-starter-pack setup-cicd`.
-See the [deployment guide](https://googlecloudplatform.github.io/agent-starter-pack/guide/deployment) for details.
+The agent automatically detects the `PUBMED_MCP_URL` environment variable and switches from local stdio to remote Streamable HTTP connection.
 
 ## Disclaimer
 
