@@ -22,8 +22,15 @@ Built with [Google ADK](https://google.github.io/adk-docs/) and the [`@cyanheads
 ## Quick Start
 
 ```bash
+# Authenticate with GCP
+gcloud auth login
+gcloud config set project <your-project-id>
+
 # Install dependencies
 make install
+
+# (Optional) Add an NCBI API key for higher PubMed rate limits
+echo "NCBI_API_KEY=your_key_here" > app/.env
 
 # Launch the interactive playground
 make playground
@@ -131,17 +138,11 @@ gcloud run services add-iam-policy-binding pubmed-mcp-server \
 ### Step 3: Deploy the agent to Agent Engine
 
 ```bash
-# Set your MCP server URL (from Step 1 output)
+# Use the Cloud Run service URL from Step 1 output
 make deploy PUBMED_MCP_URL=https://<your-cloud-run-url>/mcp
 ```
 
-Or deploy manually:
-```bash
-gcloud config set project <your-project-id>
-make deploy
-```
-
-The agent automatically detects the `PUBMED_MCP_URL` environment variable and switches from local stdio to remote Streamable HTTP connection.
+The agent automatically detects `PUBMED_MCP_URL` and switches from local stdio to remote Streamable HTTP connection. When running locally (`make playground`), it uses stdio instead.
 
 ## Disclaimer
 
