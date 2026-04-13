@@ -24,6 +24,36 @@ playground:
 	uv run adk web . --port 8501 --reload_agents
 
 # ==============================================================================
+# Backend Deployment Targets
+# ==============================================================================
+
+# Deploy the agent remotely
+# Usage: make deploy [AGENT_IDENTITY=true] [SECRETS="KEY=SECRET_ID,..."] - Set AGENT_IDENTITY=true to enable per-agent IAM identity (Preview)
+deploy:
+	# Export dependencies to requirements file using uv export.
+	(uv export --no-hashes --no-header --no-dev --no-emit-project --no-annotate > app/app_utils/.requirements.txt 2>/dev/null || \
+	uv export --no-hashes --no-header --no-dev --no-emit-project > app/app_utils/.requirements.txt) && \
+	uv run -m app.app_utils.deploy \
+		--source-packages=./app \
+		--entrypoint-module=app.agent_engine_app \
+		--entrypoint-object=agent_engine \
+		--requirements-file=app/app_utils/.requirements.txt \
+		$(if $(AGENT_IDENTITY),--agent-identity) \
+		$(if $(filter command line,$(origin SECRETS)),--set-secrets="$(SECRETS)")
+
+# Alias for 'make deploy' for backward compatibility
+backend: deploy
+
+# ==============================================================================
+# Infrastructure Setup
+# ==============================================================================
+
+# Set up development environment resources using Terraform
+setup-dev-env:
+	PROJECT_ID=$$(gcloud config get-value project) && \
+	(cd deployment/terraform/dev && terraform init && terraform apply --var-file vars/env.tfvars --var dev_project_id=$$PROJECT_ID --auto-approve)
+
+# ==============================================================================
 # Testing & Code Quality
 # ==============================================================================
 
@@ -66,3 +96,14 @@ lint:
 	uv run ruff check . --diff
 	uv run ruff format . --check --diff
 	uv run ty check .
+
+# ==============================================================================
+# Gemini Enterprise Integration
+# ==============================================================================
+
+# Register the deployed agent to Gemini Enterprise
+# Usage: make register-gemini-enterprise (interactive - will prompt for required details)
+# For non-interactive use, set env vars: ID or GEMINI_ENTERPRISE_APP_ID (full GE resource name)
+# Optional env vars: GEMINI_DISPLAY_NAME, GEMINI_DESCRIPTION, GEMINI_TOOL_DESCRIPTION, AGENT_ENGINE_ID
+register-gemini-enterprise:
+	@uvx agent-starter-pack@0.41.0 register-gemini-enterprise

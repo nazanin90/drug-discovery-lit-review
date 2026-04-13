@@ -43,7 +43,7 @@ Ask the user: Option A (simple single-project) or Option B (full CI/CD pipeline 
 | `make eval-all` | Run all evalsets |
 | `make lint` | Check code quality |
 | `make setup-dev-env` | Set up dev infrastructure (Terraform) |
-| `uvx agent-starter-pack enhance` (or equivalent) | Add a deployment target to enable `make deploy` |
+| `make deploy` | Deploy to dev |
 
 ---
 

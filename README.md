@@ -17,6 +17,7 @@ Built with [Google ADK](https://google.github.io/adk-docs/) and the [`@cyanheads
 - **Node.js 22+** (required by the PubMed MCP server)
 - **uv** — Python package manager ([install](https://docs.astral.sh/uv/getting-started/installation/))
 - **Google Cloud SDK** — authenticated with a GCP project ([install](https://cloud.google.com/sdk/docs/install))
+- **Terraform** — for infrastructure deployment ([install](https://developer.hashicorp.com/terraform/downloads))
 
 ## Quick Start
 
@@ -57,25 +58,43 @@ The playground opens a web UI at `http://localhost:8501` where you can chat with
 ```
 drug-discovery-lit-review/
 ├── app/
-│   ├── agent.py            # Agent definition and instructions
-│   └── __init__.py
+│   ├── agent.py               # Agent definition and instructions
+│   ├── agent_engine_app.py    # Agent Engine deployment wrapper
+│   └── app_utils/             # Deployment and telemetry helpers
+├── .github/workflows/         # CI/CD pipelines (GitHub Actions)
+├── deployment/terraform/      # Infrastructure as code
+├── notebooks/                 # Prototyping and evaluation notebooks
 ├── tests/
-│   ├── eval/               # Evaluation config and datasets
-│   └── integration/        # Integration tests
-├── DESIGN_SPEC.md          # Agent design specification
+│   ├── eval/                  # Evaluation config and datasets
+│   ├── integration/           # Integration tests
+│   ├── unit/                  # Unit tests
+│   └── load_test/             # Load testing
+├── DESIGN_SPEC.md             # Agent design specification
 ├── Makefile
 └── pyproject.toml
 ```
 
 ## Commands
 
-| Command           | Description                          |
-|-------------------|--------------------------------------|
-| `make install`    | Install dependencies                 |
-| `make playground` | Launch interactive web UI            |
-| `make test`       | Run tests                            |
-| `make lint`       | Run code quality checks              |
-| `make eval`       | Run evaluation against evalsets      |
+| Command              | Description                                      |
+|----------------------|--------------------------------------------------|
+| `make install`       | Install dependencies                             |
+| `make playground`    | Launch interactive web UI                        |
+| `make test`          | Run tests                                        |
+| `make lint`          | Run code quality checks                          |
+| `make eval`          | Run evaluation against evalsets                  |
+| `make deploy`        | Deploy agent to Agent Engine                     |
+| `make setup-dev-env` | Set up dev environment resources (Terraform)     |
+
+## Deployment
+
+```bash
+gcloud config set project <your-project-id>
+make deploy
+```
+
+To set up production infrastructure with CI/CD, run `uvx agent-starter-pack setup-cicd`.
+See the [deployment guide](https://googlecloudplatform.github.io/agent-starter-pack/guide/deployment) for details.
 
 ## Disclaimer
 
