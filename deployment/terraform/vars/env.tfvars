@@ -16,4 +16,4 @@ repository_owner = "Your GitHub organization or username."
 repository_name = "drug-discovery-lit-review"
 
 # The Google Cloud region you will use to deploy the infrastructure
-region = "us-west1"
+region = "us-central1"

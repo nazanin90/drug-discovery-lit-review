@@ -5,4 +5,4 @@ project_name = "drug-discovery-lit-review"
 dev_project_id = "your-gcp-project-id"
 
 # The Google Cloud region you will use to deploy the infrastructure
-region = "us-west1"
+region = "us-central1"
