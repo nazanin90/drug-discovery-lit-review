@@ -17,7 +17,7 @@ Built with [Google ADK](https://google.github.io/adk-docs/) and the [`@cyanheads
 - **Node.js 22+** (required by the PubMed MCP server)
 - **uv** — Python package manager ([install](https://docs.astral.sh/uv/getting-started/installation/))
 - **Google Cloud SDK** — authenticated with a GCP project ([install](https://cloud.google.com/sdk/docs/install))
-- **Terraform** — for infrastructure deployment ([install](https://developer.hashicorp.com/terraform/downloads))
+
 
 ## Quick Start
 
@@ -68,16 +68,13 @@ drug-discovery-lit-review/
 │   ├── agent.py               # Agent definition and instructions
 │   ├── agent_engine_app.py    # Agent Engine deployment wrapper
 │   └── app_utils/             # Deployment and telemetry helpers
-├── .github/workflows/         # CI/CD pipelines (GitHub Actions)
 ├── deployment/
-│   ├── mcp-server/            # PubMed MCP server Dockerfile (Cloud Run)
-│   └── terraform/             # Infrastructure as code
+│   └── mcp-server/            # PubMed MCP server Dockerfile (Cloud Run)
 ├── notebooks/                 # Prototyping and evaluation notebooks
 ├── tests/
 │   ├── eval/                  # Evaluation config and datasets
 │   ├── integration/           # Integration tests
-│   ├── unit/                  # Unit tests
-│   └── load_test/             # Load testing
+│   └── unit/                  # Unit tests
 ├── DESIGN_SPEC.md             # Agent design specification
 ├── Makefile
 └── pyproject.toml
@@ -93,7 +90,6 @@ drug-discovery-lit-review/
 | `make lint`          | Run code quality checks                          |
 | `make eval`          | Run evaluation against evalsets                  |
 | `make deploy`        | Deploy agent to Agent Engine                     |
-| `make setup-dev-env` | Set up dev environment resources (Terraform)     |
 
 ## Deployment
 
